@@ -3,9 +3,56 @@
 # set -x
 set -e
 
-RELEAESE_URL="https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
+# Run from the top of a checkout of the debian branch. It replaces usr/ and
+# debian/ (keeping debian/changelog and debian/gbp.conf) with the packaging for
+# one Nerd Fonts release.
+#
+# NERD_FONTS_RELEASE  release tag to package, e.g. v3.5.1 (default: latest)
+# ASSET_DIR           where release assets are downloaded; assets already
+#                     there are reused (default: /tmp/nfa)
+# FONTS               release assets (zip names without .zip) to package
+# GITHUB_TOKEN        optional, for the GitHub API request
+
+NERD_FONTS_RELEASE=${NERD_FONTS_RELEASE:-latest}
+if [ "$NERD_FONTS_RELEASE" = latest ]; then
+    RELEAESE_URL="https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest"
+else
+    RELEAESE_URL="https://api.github.com/repos/ryanoasis/nerd-fonts/releases/tags/$NERD_FONTS_RELEASE"
+fi
 RELEASE_JSON="/tmp/lnfr.json"
-TMP_ASSET_DIR="/tmp/nfa"
+TMP_ASSET_DIR=${ASSET_DIR:-/tmp/nfa}
+
+# The full 3.x release is over 4 GB of zips, too much to commit to git. Package
+# the families Regolith's looks and greeter use, plus the symbols-only font.
+FONTS=${FONTS:-"BitstreamVeraSansMono Cousine DejaVuSansMono Hack Meslo Mononoki NerdFontsSymbolsOnly RobotoMono SourceCodePro"}
+
+# Binary package suffix for assets whose lower-case name is not used as is
+declare -A PACKAGE_NAME=(
+    [nerdfontssymbolsonly]="symbols"
+)
+
+# Families Nerd Fonts 3 renamed: "<package>" -> "<old family>:<new family>".
+# A fontconfig alias keeps the old names (and their Mono variants) working in
+# users' Xresources, terminal and editor settings.
+declare -A RENAMED_FAMILY=(
+    [bitstreamverasansmono]="BitstreamVeraSansMono Nerd Font:BitstromWera Nerd Font"
+    [dejavusansmono]="DejaVuSansMono Nerd Font:DejaVuSansM Nerd Font"
+)
+
+# Nerd Fonts 3 dropped the legacy Material Design code points (U+F500-U+FD46)
+# that older Regolith looks and blocklets use, so the fonts break those
+# versions. Each bound is the first version that can carry the 3.x code points.
+OLD_GLYPHS_BLOCKLETS="i3xrocks-updates (<< 5.5.4)"
+declare -A BREAKS=(
+    [bitstreamverasansmono]="regolith-look-default (<< 0.8.8), regolith-look-lascaille (<< 0.10.3), $OLD_GLYPHS_BLOCKLETS"
+    [cousine]="regolith-look-gruvbox (<< 0.10.3), $OLD_GLYPHS_BLOCKLETS"
+    [dejavusansmono]="regolith-look-i3-default (<< 0.10.3), $OLD_GLYPHS_BLOCKLETS"
+    [hack]="regolith-look-ayu (<< 0.10.3), regolith-look-ayu-dark (<< 0.10.3), regolith-look-ayu-mirage (<< 0.10.3), $OLD_GLYPHS_BLOCKLETS"
+    [meslo]="regolith-look-solarized-dark (<< 0.10.3), $OLD_GLYPHS_BLOCKLETS"
+    [mononoki]="regolith-look-nevil (<< 0.10.3), $OLD_GLYPHS_BLOCKLETS"
+    [robotomono]="regolith-look-dracula (<< 0.10.3), regolith-look-nord (<< 0.10.3), $OLD_GLYPHS_BLOCKLETS"
+    [sourcecodepro]="regolith-look-blackhole (<< 0.10.3), $OLD_GLYPHS_BLOCKLETS"
+)
 
 write_debian_control_start() {
     echo "Source: fonts-nerd-fonts" >> debian/control
@@ -156,7 +203,40 @@ write_debian_rules() {
 }
 
 download_latest_release() {
-    curl -H "Accept: application/vnd.github.v3+json" $RELEAESE_URL > $RELEASE_JSON
+    # A token avoids the API's low rate limit for anonymous requests
+    local auth=()
+    if [ -n "$GITHUB_TOKEN" ]; then
+        auth=(-H "Authorization: Bearer $GITHUB_TOKEN")
+    fi
+    curl -fsSL "${auth[@]}" -H "Accept: application/vnd.github.v3+json" $RELEAESE_URL > $RELEASE_JSON
+    # Release checksums, to verify every asset before it is unpacked
+    curl -fsSL -o "$TMP_ASSET_DIR/SHA-256.txt" \
+        "$(jq -r '.assets[] | select(.name == "SHA-256.txt") | .browser_download_url' $RELEASE_JSON)"
+}
+
+# write_fontconfig_alias <asset> <package> <directory name>: alias the family
+# the package had before Nerd Fonts 3 to its new name
+write_fontconfig_alias() {
+    local old_family=${RENAMED_FAMILY[$1]%%:*}
+    local new_family=${RENAMED_FAMILY[$1]#*:}
+    local conf="30-fonts-nerd-font-$3.conf"
+
+    mkdir -p usr/share/fontconfig/conf.avail
+    {
+        echo '<?xml version="1.0"?>'
+        echo '<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">'
+        echo '<fontconfig>'
+        echo "  <!-- Nerd Fonts 3 renamed $old_family to $new_family -->"
+        for variant in "" " Mono"; do
+            echo '  <alias binding="same">'
+            echo "    <family>$old_family$variant</family>"
+            echo "    <prefer><family>$new_family$variant</family></prefer>"
+            echo '  </alias>'
+        done
+        echo '</fontconfig>'
+    } > "usr/share/fontconfig/conf.avail/$conf"
+    echo "usr/share/fontconfig/conf.avail/$conf" >> "debian/$2.install"
+    echo "usr/share/fontconfig/conf.avail/$conf etc/fonts/conf.d/$conf" >> "debian/$2.links"
 }
 
 setup() {
@@ -164,9 +244,16 @@ setup() {
         mkdir -p $TMP_ASSET_DIR
     fi
 
+    # Keep the package history and the gbp settings
+    local keep
+    keep=$(mktemp -d)
+    cp -a debian/changelog debian/gbp.conf "$keep/" 2>/dev/null || true
+
     rm -Rf usr
     rm -Rf debian
     mkdir debian
+    cp -a "$keep"/. debian/
+    rm -Rf "$keep"
 
     write_debian_copyright
     write_debian_control_start
@@ -188,8 +275,13 @@ generate_debian_package() {
         fi
 
         # Skip font-patcher
-        if [[ $ASSET_NAME == *"FontPatcher"* ]]; then
+        if [[ $ASSET_FILENAME == *"FontPatcher"* ]]; then
             echo "$ASSET_NAME is not a font, skipping."
+            continue
+        fi
+
+        # Only the selected fonts
+        if [[ " ${FONTS,,} " != *" ${ASSET_NAME%.*} "* ]]; then
             continue
         fi
 
@@ -203,6 +295,8 @@ generate_debian_package() {
 
 
         # Append to control file
+        ASSET_KEY="${ASSET_NAME%.*}"
+        ASSET_NAME="${PACKAGE_NAME[$ASSET_KEY]:-$ASSET_KEY}.zip"
         ASSET_DEBIAN_NAME="fonts-nerd-font-${ASSET_NAME%.*}"
 
         echo "" >> debian/control
@@ -210,14 +304,23 @@ generate_debian_package() {
         echo "Architecture: all" >> debian/control
         echo "Multi-Arch: foreign" >> debian/control
         echo "Depends: \${misc:Depends}" >> debian/control
-        echo "Description: nerd-fonts ${ASSET_NAME%.*}" >> debian/control    
+        if [ -n "${BREAKS[$ASSET_KEY]}" ]; then
+            echo "Breaks: ${BREAKS[$ASSET_KEY]}" >> debian/control
+        fi
+        echo "Description: nerd-fonts ${ASSET_NAME%.*}" >> debian/control
 
-        # Create install file
-        wget -P $TMP_ASSET_DIR "$ASSET_URL"
+        # Download (unless already there) and verify the asset
+        if [ ! -f "$TMP_ASSET_DIR/$ASSET_FILENAME" ]; then
+            wget -P $TMP_ASSET_DIR "$ASSET_URL"
+        fi
+        (cd $TMP_ASSET_DIR && grep " $ASSET_FILENAME\$" SHA-256.txt | sha256sum -c -)
+
+        # Create install file. Nerd Fonts 3 adds a "Propo" (proportional)
+        # variant; ship the same two variants as before, Nerd Font and Mono.
         mkdir -p "usr/share/fonts/opentype/${ASSET_NAME%.*}"
-        unzip "$TMP_ASSET_DIR/$ASSET_FILENAME" "*.otf" -d "usr/share/fonts/opentype/${ASSET_NAME%.*}/" -x "*Windows Compatible*" || true
+        unzip "$TMP_ASSET_DIR/$ASSET_FILENAME" "*.otf" -d "usr/share/fonts/opentype/${ASSET_NAME%.*}/" -x "*Windows Compatible*" "*Propo*" || true
         mkdir -p "usr/share/fonts/truetype/${ASSET_NAME%.*}"
-        unzip "$TMP_ASSET_DIR/$ASSET_FILENAME" "*.ttf" -d "usr/share/fonts/truetype/${ASSET_NAME%.*}/" -x "*Windows Compatible*" || true
+        unzip "$TMP_ASSET_DIR/$ASSET_FILENAME" "*.ttf" -d "usr/share/fonts/truetype/${ASSET_NAME%.*}/" -x "*Windows Compatible*" "*Propo*" || true
 
         if [ -n "$(find usr/share/fonts/opentype/${ASSET_NAME%.*} -prune -empty -type d 2>/dev/null)" ]; then
             rmdir "usr/share/fonts/opentype/${ASSET_NAME%.*}"
@@ -229,11 +332,19 @@ generate_debian_package() {
             rmdir "usr/share/fonts/truetype/${ASSET_NAME%.*}"
         else
             echo "usr/share/fonts/truetype/${ASSET_NAME%.*}" >> "debian/$ASSET_DEBIAN_NAME.install"
-        fi        
+        fi
+
+        if [ -n "${RENAMED_FAMILY[$ASSET_KEY]}" ]; then
+            write_fontconfig_alias "$ASSET_KEY" "$ASSET_DEBIAN_NAME" "${ASSET_NAME%.*}"
+        fi
     done
 
     RELEASE_VERSION=$(cat $RELEASE_JSON | jq -r '.tag_name' | sed 's/^v*//')
-    dch --create --newversion $RELEASE_VERSION --package fonts-nerd-fonts --distribution focal "Automated release"
+    if [ -f debian/changelog ]; then
+        dch --newversion "$RELEASE_VERSION-1" --distribution focal "New upstream release $RELEASE_VERSION"
+    else
+        dch --create --newversion $RELEASE_VERSION --package fonts-nerd-fonts --distribution focal "Automated release"
+    fi
 }
 
 setup
