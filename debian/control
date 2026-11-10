@@ -5,296 +5,64 @@ Maintainer: Regolith Linux <regolith.linux@gmail.com>
 Build-Depends: debhelper (>= 10)
 Standards-Version: 4.1.2
 
-Package: fonts-nerd-font-3270
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts 3270
-
-Package: fonts-nerd-font-agave
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts agave
-
-Package: fonts-nerd-font-anonymouspro
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts anonymouspro
-
-Package: fonts-nerd-font-arimo
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts arimo
-
-Package: fonts-nerd-font-aurulentsansmono
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts aurulentsansmono
-
-Package: fonts-nerd-font-bigblueterminal
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts bigblueterminal
-
 Package: fonts-nerd-font-bitstreamverasansmono
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}
+Breaks: regolith-look-default (<< 0.8.8), regolith-look-lascaille (<< 0.10.3), i3xrocks-updates (<< 5.5.4)
 Description: nerd-fonts bitstreamverasansmono
-
-Package: fonts-nerd-font-cascadiacode
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts cascadiacode
-
-Package: fonts-nerd-font-codenewroman
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts codenewroman
 
 Package: fonts-nerd-font-cousine
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}
+Breaks: regolith-look-gruvbox (<< 0.10.3), i3xrocks-updates (<< 5.5.4)
 Description: nerd-fonts cousine
-
-Package: fonts-nerd-font-daddytimemono
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts daddytimemono
 
 Package: fonts-nerd-font-dejavusansmono
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}
+Breaks: regolith-look-i3-default (<< 0.10.3), i3xrocks-updates (<< 5.5.4)
 Description: nerd-fonts dejavusansmono
-
-Package: fonts-nerd-font-droidsansmono
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts droidsansmono
-
-Package: fonts-nerd-font-fantasquesansmono
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts fantasquesansmono
-
-Package: fonts-nerd-font-firacode
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts firacode
-
-Package: fonts-nerd-font-firamono
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts firamono
-
-Package: fonts-nerd-font-go-mono
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts go-mono
-
-Package: fonts-nerd-font-gohu
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts gohu
 
 Package: fonts-nerd-font-hack
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}
+Breaks: regolith-look-ayu (<< 0.10.3), regolith-look-ayu-dark (<< 0.10.3), regolith-look-ayu-mirage (<< 0.10.3), i3xrocks-updates (<< 5.5.4)
 Description: nerd-fonts hack
-
-Package: fonts-nerd-font-hasklig
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts hasklig
-
-Package: fonts-nerd-font-heavydata
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts heavydata
-
-Package: fonts-nerd-font-hermit
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts hermit
-
-Package: fonts-nerd-font-ia-writer
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts ia-writer
-
-Package: fonts-nerd-font-ibmplexmono
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts ibmplexmono
-
-Package: fonts-nerd-font-inconsolata
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts inconsolata
-
-Package: fonts-nerd-font-inconsolatago
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts inconsolatago
-
-Package: fonts-nerd-font-inconsolatalgc
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts inconsolatalgc
-
-Package: fonts-nerd-font-iosevka
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts iosevka
-
-Package: fonts-nerd-font-jetbrainsmono
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts jetbrainsmono
-
-Package: fonts-nerd-font-lekton
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts lekton
-
-Package: fonts-nerd-font-liberationmono
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts liberationmono
 
 Package: fonts-nerd-font-meslo
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}
+Breaks: regolith-look-solarized-dark (<< 0.10.3), i3xrocks-updates (<< 5.5.4)
 Description: nerd-fonts meslo
-
-Package: fonts-nerd-font-monofur
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts monofur
-
-Package: fonts-nerd-font-monoid
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts monoid
 
 Package: fonts-nerd-font-mononoki
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}
+Breaks: regolith-look-nevil (<< 0.10.3), i3xrocks-updates (<< 5.5.4)
 Description: nerd-fonts mononoki
 
-Package: fonts-nerd-font-mplus
+Package: fonts-nerd-font-symbols
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}
-Description: nerd-fonts mplus
-
-Package: fonts-nerd-font-opendyslexic
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts opendyslexic
-
-Package: fonts-nerd-font-overpass
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts overpass
-
-Package: fonts-nerd-font-profont
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts profont
-
-Package: fonts-nerd-font-proggyclean
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts proggyclean
+Description: nerd-fonts symbols
 
 Package: fonts-nerd-font-robotomono
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}
+Breaks: regolith-look-dracula (<< 0.10.3), regolith-look-nord (<< 0.10.3), i3xrocks-updates (<< 5.5.4)
 Description: nerd-fonts robotomono
-
-Package: fonts-nerd-font-sharetechmono
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts sharetechmono
 
 Package: fonts-nerd-font-sourcecodepro
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}
+Breaks: regolith-look-blackhole (<< 0.10.3), i3xrocks-updates (<< 5.5.4)
 Description: nerd-fonts sourcecodepro
-
-Package: fonts-nerd-font-spacemono
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts spacemono
-
-Package: fonts-nerd-font-terminus
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts terminus
-
-Package: fonts-nerd-font-tinos
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts tinos
-
-Package: fonts-nerd-font-ubuntu
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts ubuntu
-
-Package: fonts-nerd-font-ubuntumono
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts ubuntumono
-
-Package: fonts-nerd-font-victormono
-Architecture: all
-Multi-Arch: foreign
-Depends: ${misc:Depends}
-Description: nerd-fonts victormono

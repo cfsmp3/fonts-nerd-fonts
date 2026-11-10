@@ -1,3 +1,20 @@
+fonts-nerd-fonts (3.5.1-1) focal; urgency=medium
+
+  [ rego-port-bot ]
+  * New upstream release 3.5.1
+  * Package only the families Regolith uses (BitstreamVeraSansMono, Cousine,
+    DejaVuSansMono, Hack, Meslo, Mononoki, RobotoMono and SourceCodePro), in
+    their Nerd Font and Nerd Font Mono variants, plus the new
+    fonts-nerd-font-symbols; stop building the other fonts-nerd-font-*
+    packages
+  * Alias the families Nerd Fonts 3 renamed with fontconfig:
+    BitstreamVeraSansMono Nerd Font (now BitstromWera Nerd Font) and
+    DejaVuSansMono Nerd Font (now DejaVuSansM Nerd Font)
+  * Break the Regolith looks and the updates blocklet that still use the
+    legacy Material Design code points (U+F500-U+FD46) Nerd Fonts 3 dropped
+
+ -- Regolith Linux <regolith.linux@gmail.com>  Mon, 09 Nov 2026 17:05:57 +0000
+
 fonts-nerd-fonts (2.1.0-4) focal; urgency=medium
 
   [ Khosrow Moossavi ]
